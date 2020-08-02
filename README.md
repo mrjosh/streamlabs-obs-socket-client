@@ -9,7 +9,7 @@ Connect and control Streamlabs-OBS websocket.
 In Streamlabs OBS, go to ``Settings``->``Remote Control`` and click on the ``QR-Code`` and then on ``show details``
 
 ### Usage
-```
+```js
 const StreamlabsOBSClient = require("streamlabs-obs-socket-client")
 
 const client = new StreamlabsOBSClient({

@@ -1,19 +1,19 @@
 const WebsocketClient = require('sockjs-client');
 
 //Event message ID's to manage our callbacks from slobs.
-const ConnectEvent = 1,
-	StreamingStatusEvent = 2,
-	StreamingStatusChangedEvent = 3,
-	ScenesEvent = 4;
+  const ConnectEvent = 1,
+  StreamingStatusEvent = 2,
+  StreamingStatusChangedEvent = 3,
+  ScenesEvent = 4;
 
 module.exports = class StreamlabsOBSClient {
 
-	token;
-	scenes;
-	sceneIds;
-	startTimer;
+  token;
+  scenes;
+  sceneIds;
+  startTimer;
 
-	constructor(opts) {
+  constructor(opts) {
     if (opts.connectionString === undefined) {
       this.port = opts.port === undefined ? 59650 : opts.port
       this.uri = opts.uri === undefined ? "127.0.0.1" : opts.uri
@@ -23,11 +23,11 @@ module.exports = class StreamlabsOBSClient {
       this.sceneIds = {};
       this.connectionString = `http://${this.uri}:${this.port}/${this.path}`
     }
-	}
+  }
 
-	connect() {
+  connect() {
 
-		this.socket = new WebsocketClient(this.connectionString);
+    this.socket = new WebsocketClient(this.connectionString);
 
     return new Promise(resolve, reject => {
 
@@ -86,104 +86,104 @@ module.exports = class StreamlabsOBSClient {
 
     })
 
-	}
+  }
 
-	subscribe(event) {
-		let message;
-		switch (event) {
-			case "streaming":
-				message = {
-					id: StreamingStatusChangedEvent,
-					jsonrpc: '2.0',
-					method: 'streamingStatusChange',
-					params: { resource: 'StreamingService' },
-				}
-				break
-			case "status":
-				message = {
-					id: StreamingStatusEvent,
-					jsonrpc: '2.0',
-					method: 'getModel',
-					params: { resource: 'StreamingService' },
-				}
-				break
-			case "scenes":
-				message = {
-					id: ScenesEvent,
-					jsonrpc: '2.0',
-					method: 'getScenes',
-					params: { resource: 'ScenesService' },
-				}
-				break
-		}
-		this.send(message);
-	}
+  subscribe(event) {
+    let message;
+    switch (event) {
+      case "streaming":
+        message = {
+          id: StreamingStatusChangedEvent,
+          jsonrpc: '2.0',
+          method: 'streamingStatusChange',
+          params: { resource: 'StreamingService' },
+        }
+        break
+      case "status":
+        message = {
+          id: StreamingStatusEvent,
+          jsonrpc: '2.0',
+          method: 'getModel',
+          params: { resource: 'StreamingService' },
+        }
+        break
+      case "scenes":
+        message = {
+          id: ScenesEvent,
+          jsonrpc: '2.0',
+          method: 'getScenes',
+          params: { resource: 'ScenesService' },
+        }
+        break
+    }
+    this.send(message);
+  }
 
-	getSourceItemFromScene(sceneName, sourceName) {
-		return this.scenes[sceneName].get(sourceName)
-	}
+  getSourceItemFromScene(sceneName, sourceName) {
+    return this.scenes[sceneName].get(sourceName)
+  }
 
-	changeSourceVisibility(sceneName, sourceName, visibility) {
-		const source = this.getSourceItemFromScene(sceneName, sourceName)
-		if (visibility == null) {
-			visibility = !source.visible
-		}
-		this.send({
-			id: 10,
-			jsonrpc: '2.0',
-			method: 'setVisibility',
-			params: {
-				resource: `SceneItem["${source.sceneId}","${source.sceneItemId}","${source.sourceId}"]`,
-				args: [visibility]
-			},
-		});
-		source.visible = visibility
-	}
+  changeSourceVisibility(sceneName, sourceName, visibility) {
+    const source = this.getSourceItemFromScene(sceneName, sourceName)
+    if (visibility == null) {
+      visibility = !source.visible
+    }
+    this.send({
+      id: 10,
+      jsonrpc: '2.0',
+      method: 'setVisibility',
+      params: {
+        resource: `SceneItem["${source.sceneId}","${source.sceneItemId}","${source.sourceId}"]`,
+        args: [visibility]
+      },
+    });
+    source.visible = visibility
+  }
 
-	toggleSourceVisibility(sceneName, sourceName) {
-		this.changeSourceVisibility(sceneName, sourceName, null)
-	}
+  toggleSourceVisibility(sceneName, sourceName) {
+    this.changeSourceVisibility(sceneName, sourceName, null)
+  }
 
-	changeScene(sceneName) {
-		this.send({
-			id: 10,
-			jsonrpc: '2.0',
-			method: 'makeSceneActive',
-			params: {
-				resource: 'ScenesService',
-				args: [this.sceneIds[sceneName]],
-			},
-		});
-	}
+  changeScene(sceneName) {
+    this.send({
+      id: 10,
+      jsonrpc: '2.0',
+      method: 'makeSceneActive',
+      params: {
+        resource: 'ScenesService',
+        args: [this.sceneIds[sceneName]],
+      },
+    });
+  }
 
-	send(message) {
-		this.socket.send(JSON.stringify(message));
-	}
+  send(message) {
+    this.socket.send(JSON.stringify(message));
+  }
 
-	handleError(errMessage) {
-		switch (errMessage) {
-			case 'INTERNAL_JSON_RPC_ERROR Invalid token':
-				console.log("Unauthorized!");
-				return
-		}
-	}
+  handleError(errMessage) {
+    switch (errMessage) {
+      case 'INTERNAL_JSON_RPC_ERROR Invalid token':
+        console.log("Unauthorized!");
+        return
+    }
+  }
 
-	authenticate() {
-		console.log("Authenticating to Streamlabs-OBS websocket...");
-		this.socket.send(JSON.stringify({
-			jsonrpc: '2.0',
-			id: 1,
-			method: 'auth',
-			params: {
-				resource: 'TcpServerService',
-				args: [this.token],
-			},
-		}));
-	}
+  authenticate() {
+    console.log("Authenticating to Streamlabs-OBS websocket...");
+    this.socket.send(JSON.stringify({
+      jsonrpc: '2.0',
+      id: 1,
+      method: 'auth',
+      params: {
+        resource: 'TcpServerService',
+        args: [this.token],
+      },
+    }));
+  }
 
-	getScenes() {
-		return this.scenes;
-	}
+  getScenes() {
+    return this.scenes;
+  }
 
 }
 

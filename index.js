@@ -14,71 +14,77 @@ module.exports = class StreamlabsOBSClient {
 	startTimer;
 
 	constructor(opts) {
-		console.info("Constructing ...")
-		this.port = opts.port === undefined ? 59650 : opts.port
-		this.uri = opts.uri === undefined ? "127.0.0.1" : opts.uri
-		this.path = opts.path === undefined ? "api" : opts.path
-		this.token = opts.token;
-		this.scenes = {};
-		this.sceneIds = {};
-		this.connectionString = `http://${this.uri}:${this.port}/${this.path}`
+    if (opts.connectionString === undefined) {
+      this.port = opts.port === undefined ? 59650 : opts.port
+      this.uri = opts.uri === undefined ? "127.0.0.1" : opts.uri
+      this.path = opts.path === undefined ? "api" : opts.path
+      this.token = opts.token;
+      this.scenes = {};
+      this.sceneIds = {};
+      this.connectionString = `http://${this.uri}:${this.port}/${this.path}`
+    }
 	}
 
 	connect() {
 
 		this.socket = new WebsocketClient(this.connectionString);
 
-		//AUTHORIZE WITH SLOBS
-		this.socket.onopen = () => {
-			this.authenticate()
-		};
+    return new Promise(resolve, reject => {
 
-		// HANDLE MESSAGES RECEIVED
-		this.socket.onmessage = message => {
+      //AUTHORIZE WITH SLOBS
+      this.socket.onopen = () => {
+        this.authenticate()
+      };
 
-			console.log(message);
+      this.socket.onerror = reject
 
-			const data = JSON.parse(message.data);
+      // HANDLE MESSAGES RECEIVED
+      this.socket.onmessage = message => {
 
-			switch (data.id) {
-				case ConnectEvent:
-					if (data.error !== undefined) {
-						this.handleError(data.error.message)
-						return
-					}
-					if (!data.result) {
-						this.authenticate()
-						return
-					}
-					this.subscribe("streaming");
-					this.subscribe("status");
-					this.subscribe("scenes");
-					break
-				case StreamingStatusEvent:
-					this.streamStatus = data.result.streamingStatus
-					this.startTimer = (this.streamStatus === 'live' ? data.result.streamingStatusTime : null);
-					break
-				case ScenesEvent:
-					for (let i = 0; i < data.result.length; i++) {
-						const sources = new Map();
-						for (let j = 0; j < data.result[i].nodes.length; j++) {
-							sources.set(data.result[i].nodes[j].name, data.result[i].nodes[j]);
-						}
-						const sceneName = data.result[i].name;
-						this.scenes[sceneName] = sources
-						this.sceneIds[sceneName] = data.result[i].id;
-					}
-					break;
-				default:
-					break;
-			}
+        const data = JSON.parse(message.data);
 
-		}
+        switch (data.id) {
 
-		//Output error message if socket closes
-		this.socket.onclose = err => {
-			console.log(err);
-		};
+          case ConnectEvent:
+            if (data.error !== undefined) {
+              this.handleError(data.error.message)
+              return
+            }
+            if (!data.result) {
+              this.authenticate()
+              return
+            }
+            this.subscribe("streaming");
+            this.subscribe("status");
+            this.subscribe("scenes");
+            break
+
+          case StreamingStatusEvent:
+            this.streamStatus = data.result.streamingStatus
+            this.startTimer = (this.streamStatus === 'live' ? data.result.streamingStatusTime : null);
+            break
+
+          case ScenesEvent:
+            for (let i = 0; i < data.result.length; i++) {
+              const sources = new Map();
+              for (let j = 0; j < data.result[i].nodes.length; j++) {
+                sources.set(data.result[i].nodes[j].name, data.result[i].nodes[j]);
+              }
+              const sceneName = data.result[i].name;
+              this.scenes[sceneName] = sources
+              this.sceneIds[sceneName] = data.result[i].id;
+            }
+            break;
+        }
+
+      }
+
+      //Output error message if socket closes
+      this.socket.onclose = reject
+
+      resolve(this.socket)
+
+    })
 
 	}
 

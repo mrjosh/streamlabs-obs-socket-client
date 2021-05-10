@@ -1,4 +1,4 @@
-[![Discord](https://discordapp.com/api/guilds/415566764697583628/embed.png)](https://discord.gg/udz5DC6)
+[![Discord](https://discordapp.com/api/guilds/415566764697583628/embed.png)](https://discord.gg/d4syxTUXFc)
 ![License](https://poser.pugx.org/josh/laravel-phantomjs/license)
 
 # Streamlabs-OBS Websocket Javascript Client
@@ -13,15 +13,28 @@ In Streamlabs OBS, go to ``Settings``->``Remote Control`` and click on the ``QR-
 const StreamlabsOBSClient = require("streamlabs-obs-socket-client")
 
 const client = new StreamlabsOBSClient({
-    token: "{TOKEN}",
+  token: "{YOUR-SLOBS-ACCESS-TOKEN}",
+  port:  59650,
+  uri:   "localhost",
 });
 
-client.connect();
+// create slobs websocket connection
+client.connect().then(() => {
 
-setTimeout(() => {
-    client.changeScene("Scene Name")
-}, 3000)
+  // change the scene
+  client.changeScene("Desktop")
+
+})
 ```
+
+### Available Methods
+| Method | Description |
+| ------- | ------- |
+| `client.getScenes()` | get available scenes |
+| `client.changeScene(sceneName = String)` | change the current scene |
+| `client.changeSourceVisibility(sceneName = String, sourceName = String, visibility = Bool)` | change source visibility of an item in a scene |
+| `client.toggleSourceVisibility(sceneName = String, sourceName = String)` | toggle visibility of an item in a scene |
+| `client.getSourceItemFromScene(sceneName = String, sourceName = String)` | get a source item from a scene |
 
 ## Contributing
 Thank you for considering contributing to this project!

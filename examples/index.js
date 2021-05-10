@@ -1,11 +1,15 @@
 const StreamlabsOBSClient = require("../index.js")
 
 const client = new StreamlabsOBSClient({
-    token: "{TOKEN}",
+  token: "{YOUR-SLOBS-ACCESS-TOKEN}",
+  port:  59650,
+  uri:   "localhost",
 });
 
-client.connect();
+// create slobs websocket connection
+client.connect().then(() => {
 
-setTimeout(() => {
-    client.changeScene("Desktop")
-}, 3000)
+  // change the scene
+  client.changeScene("Desktop")
+
+})

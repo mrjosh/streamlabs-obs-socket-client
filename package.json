@@ -1,6 +1,6 @@
 {
   "name": "streamlabs-obs-socket-client",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Connect to Streamlabs-OBS websocket.",
   "main": "./index.js",
   "scripts": {
@@ -9,15 +9,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/MrJoshLab/streamlabs-obs-socket-client.git"
+    "url": "git+https://github.com/mrjosh/streamlabs-obs-socket-client.git"
   },
   "keywords": [],
   "author": "Alireza Josheghani <josheghani.dev@gmail.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/MrJoshLab/streamlabs-obs-socket-client/issues"
+    "url": "https://github.com/mrjosh/streamlabs-obs-socket-client/issues"
   },
-  "homepage": "https://github.com/MrJoshLab/streamlabs-obs-socket-client",
+  "homepage": "https://github.com/mrjosh/streamlabs-obs-socket-client",
   "dependencies": {
     "sockjs-client": "^1.4.0"
   },

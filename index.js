@@ -29,7 +29,7 @@ module.exports = class StreamlabsOBSClient {
     
     this.socket = new WebsocketClient(this.connectionString);
     
-    return new Promise(resolve, reject => {
+    return new Promise((resolve, reject) => {
       
       //AUTHORIZE WITH SLOBS
       this.socket.onopen = () => {

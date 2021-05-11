@@ -74,6 +74,10 @@ module.exports = class StreamlabsOBSClient {
             this.scenes[sceneName] = sources
             this.sceneIds[sceneName] = data.result[i].id;
           }
+
+          // Resolve after scenes are set up
+          resolve(this.socket)
+
           break;
         }
         
@@ -81,8 +85,6 @@ module.exports = class StreamlabsOBSClient {
       
       //Output error message if socket closes
       this.socket.onclose = reject
-      
-      resolve(this.socket)
       
     })
     
